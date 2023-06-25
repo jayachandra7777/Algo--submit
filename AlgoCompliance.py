@@ -1,55 +1,84 @@
-# Copyright Brian Haney and Samuel Tosin 2022
-# Apache License
-# Automated Compliance on Algorand
-from tkinter import *
-from tkinter.messagebox import *
-natural_language_compression = {'good':0.75, 'acceptable':0.5, 'outstanding': 1, 'unacceptable': 0, 'marginal': .25}
-master = Tk()
-label0 = Label(master, text = 'Equity', relief = 'groove', width = 12)
-label1 = Label(master, text = 'Decentralization', relief = 'groove', width = 12)
-label2 = Label(master, text = 'Participation', relief = 'groove', width = 12)
-label3 = Label(master, text = 'Investment', relief = 'groove', width = 12)
-label4 = Label(master, text = 'Utility', relief = 'groove', width = 12)
-label5 = Label(master, text = 'Purpose', relief = 'groove', width = 12)
-label6 = Label(master, text = 'Control', relief = 'groove', width = 12)
-label7 = Label(master, text = 'Derivatives', relief = 'groove', width = 12)
-label8 = Label(master, text = 'Open Source', relief = 'groove', width = 12)
-label9 = Label(master, text = 'Compliance Score', relief = 'groove', width = 20)
-entry0 = Entry(master, relief = 'groove', width = 12)
-entry1 = Entry(master, relief = 'groove', width = 12)
-entry2 = Entry(master, relief = 'groove', width = 12)
-entry3 = Entry(master, relief = 'groove', width = 12)
-entry4 = Entry(master, relief = 'groove', width = 12)
-entry5 = Entry(master, relief = 'groove', width = 12)
-entry6 = Entry(master, relief = 'groove', width = 12)
-entry7 = Entry(master, relief = 'groove', width = 12)
-entry8 = Entry(master, relief = 'groove', width = 12)
-blank0 = Entry(master, relief = 'groove', width = 20)
+# This is a stateful smart contract that calculates the compliance score of an ASA
+from pyteal import *
+
+# Define global variables
+compliance_score = Bytes("compliance_score") # The compliance score of the ASA
+equity = Bytes("equity") # The equity rating of the ASA
+decentralization = Bytes("decentralization") # The decentralization rating of the ASA
+participation = Bytes("participation") # The participation rating of the ASA
+investment = Bytes("investment") # The investment rating of the ASA
+utility = Bytes("utility") # The utility rating of the ASA
+purpose = Bytes("purpose") # The purpose rating of the ASA
+control = Bytes("control") # The control rating of the ASA
+derivatives = Bytes("derivatives") # The derivatives rating of the ASA
+open_source = Bytes("open_source") # The open source rating of the ASA
+
+# Define a helper function to convert a rating to a numerical value
+def rating_to_value(rating):
+    return Btoi(rating) / 100
+
+# Define the smart contract function
 def compliance_ai():
+    """
+    This function calculates the compliance score of an ASA based on nine ratings.
+    It takes nine arguments as input: equity, decentralization, participation,
+    investment, utility, purpose, control, derivatives, and open source.
+    Each argument is a byte string representing a percentage value from 0 to 100.
+    It returns the compliance score as a byte string representing a decimal value from 0 to 1.
+    """
+    # Get the ratings from the arguments
+    equity_rating = Btoi(App.globalGet(equity))
+    decentralization_rating = Btoi(App.globalGet(decentralization))
+    participation_rating = Btoi(App.globalGet(participation))
+    investment_rating = Btoi(App.globalGet(investment))
+    utility_rating = Btoi(App.globalGet(utility))
+    purpose_rating = Btoi(App.globalGet(purpose))
+    control_rating = Btoi(App.globalGet(control))
+    derivatives_rating = Btoi(App.globalGet(derivatives))
+    open_source_rating = Btoi(App.globalGet(open_source))
+
+    # Validate the ratings are between 0 and 100
+    valid_ratings = And(
+        equity_rating >= Int(0),
+        equity_rating <= Int(100),
+        decentralization_rating >= Int(0),
+        decentralization_rating <= Int(100),
+        participation_rating >= Int(0),
+        participation_rating <= Int(100),
+        investment_rating >= Int(0),
+        investment_rating <= Int(100),
+        utility_rating >= Int(0),
+        utility_rating <= Int(100),
+        purpose_rating >= Int(0),
+        purpose_rating <= Int(100),
+        control_rating >= Int(0),
+        control_rating <= Int(100),
+        derivatives_rating >= Int(0),
+        derivatives_rating <= Int(100),
+        open_source_rating >= Int(0),
+        open_source_rating <= Int(100)
+    )
+
+    # Calculate the compliance score
     intuition = 1/9
-    knowledge = float(natural_language_compression[entry0.get()]) * float(natural_language_compression[entry1.get()]) * float(natural_language_compression[entry2.get()]) *float(natural_language_compression[entry3.get()]) * float(natural_language_compression[entry4.get()]) * float(natural_language_compression[entry5.get()]) * float(natural_language_compression[entry6.get()]) * float(natural_language_compression[entry7.get()]) * float(natural_language_compression[entry8.get()])
-    intelligence = float(knowledge) ** intuition
-    blank0.insert(0, intelligence)
-button0 = Button(master, text = 'Calculate ASA Compliance', relief = 'groove', width = 25, command =compliance_ai)
-label0.grid( row = 1, column = 1, padx = 10 )
-label1.grid( row = 2, column = 1, padx = 10 )
-label2.grid( row = 3, column = 1, padx = 10 )
-label3.grid( row = 4, column = 1, padx = 10 )
-label4.grid( row = 5, column = 1, padx = 10 )
-label5.grid( row = 6, column = 1, padx = 10 )
-label6.grid( row = 7, column = 1, padx = 10 )
-label7.grid( row = 8, column = 1, padx = 10 )
-label8.grid( row = 9, column = 1, padx = 10 )
-label9.grid( row = 2, column = 3, padx = 10 )
-entry0.grid( row = 1, column = 2, padx = 10 )
-entry1.grid( row = 2, column = 2, padx = 10 )
-entry2.grid( row = 3, column = 2, padx = 10 )
-entry3.grid( row = 4, column = 2, padx = 10 )
-entry4.grid( row = 5, column = 2, padx = 10 )
-entry5.grid( row = 6, column = 2, padx = 10 )
-entry6.grid( row = 7, column = 2, padx = 10 )
-entry7.grid( row = 8, column = 2, padx = 10 )
-entry8.grid( row = 9, column = 2, padx = 10 )
-blank0.grid( row = 3, column = 3, padx = 10 )
-button0.grid( row = 4, column = 3, columnspan = 2)
-master.title('Automated Compliance on Algorand')
+    knowledge = rating_to_value(equity_rating) * rating_to_value(decentralization_rating) * rating_to_value(participation_rating) * rating_to_value(investment_rating) * rating_to_value(utility_rating) * rating_to_value(purpose_rating) * rating_to_value(control_rating) * rating_to_value(derivatives_rating) * rating_to_value(open_source_rating)
+    intelligence = knowledge ** intuition
+
+    # Update the global variable with the compliance score
+    update_score = App.globalPut(compliance_score, Itob(intelligence))
+
+    # Return the compliance score as the output
+    return_score = Return(Itob(intelligence))
+
+    # Define the smart contract logic
+    program = Seq([
+        Assert(valid_ratings), # Check if the ratings are valid
+        update_score, # Update the global variable
+        return_score # Return the output
+    ])
+
+    return program
+
+# Compile the smart contract to TEAL bytecode
+if __name__ == "__main__":
+    print(compileTeal(compliance_ai(), Mode.Application))
